@@ -97,7 +97,18 @@
           <td>{{ product.id }}</td>
           <td>{{ product.name }}</td>
           <td>{{ product.sku }}</td>
-          <td>{{ formatPrice(product) }}</td>
+          <td>
+            @if (hasActivePromotion(product)) {
+              <div class="price-stack price-stack--promo">
+                <span class="promo-badge">{{ getPromotionDiscountLabel(product) }}</span>
+                <strong>{{ formatFinalPrice(product) }}</strong>
+                <span class="price-original">{{ formatPrice(product) }}</span>
+                <small>{{ getPromotionName(product) }}</small>
+              </div>
+            } @else {
+              <span class="price-regular">{{ formatPrice(product) }}</span>
+            }
+          </td>
           <td>{{ product.currency }}</td>
           <td>{{ getSupplierNames(product) }}</td>
           <td class="row-actions">
@@ -213,7 +224,18 @@
           </div>
           <div>
             <dt>Precio</dt>
-            <dd>{{ formatPrice(product) }}</dd>
+            <dd>
+              @if (hasActivePromotion(product)) {
+                <div class="price-stack price-stack--promo">
+                  <span class="promo-badge">{{ getPromotionDiscountLabel(product) }}</span>
+                  <strong>{{ formatFinalPrice(product) }}</strong>
+                  <span class="price-original">{{ formatPrice(product) }}</span>
+                  <small>{{ getPromotionName(product) }}</small>
+                </div>
+              } @else {
+                {{ formatPrice(product) }}
+              }
+            </dd>
           </div>
           <div>
             <dt>Creado</dt>

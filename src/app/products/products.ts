@@ -246,20 +246,39 @@ export class Products implements OnInit {
   }
 
   protected formatPrice(product: Product): string {
-    const price = Number(product.price);
+    return this.formatCurrency(product.price, product.currency);
+  }
 
-    if (Number.isNaN(price)) {
-      return `${product.price} ${product.currency}`;
+  protected formatFinalPrice(product: Product): string {
+    return this.formatCurrency(product.final_price ?? product.discounted_price ?? product.price, product.currency);
+  }
+
+  protected hasActivePromotion(product: Product): boolean {
+    return this.isTruthy(product.has_active_promotion) || this.isTruthy(product.active_promotion?.is_active);
+  }
+
+  protected getPromotionDiscountLabel(product: Product): string {
+    const discount = product.discount_percentage ?? product.active_promotion?.discount_percentage;
+
+    if (discount === null || discount === undefined || discount === '') {
+      return 'Promo';
     }
 
-    try {
-      return new Intl.NumberFormat('es-MX', {
-        style: 'currency',
-        currency: product.currency || 'MXN',
-      }).format(price);
-    } catch {
-      return `${price.toFixed(2)} ${product.currency}`;
+    const numericDiscount = Number(discount);
+
+    if (Number.isNaN(numericDiscount)) {
+      return `${discount}% OFF`;
     }
+
+    const discountText = Number.isInteger(numericDiscount)
+      ? numericDiscount.toFixed(0)
+      : numericDiscount.toFixed(2);
+
+    return `${discountText}% OFF`;
+  }
+
+  protected getPromotionName(product: Product): string {
+    return product.active_promotion?.promotion ?? 'Promoción activa';
   }
 
   protected formatDate(value: string | undefined): string {
@@ -439,6 +458,31 @@ export class Products implements OnInit {
 
   private getSelectedSupplierName(): string | undefined {
     return this.findSupplierNameById(this.filters.supplierId);
+  }
+
+  private formatCurrency(value: number | string | null | undefined, currency: string): string {
+    if (value === null || value === undefined || value === '') {
+      return '-';
+    }
+
+    const amount = Number(value);
+
+    if (Number.isNaN(amount)) {
+      return `${value} ${currency}`;
+    }
+
+    try {
+      return new Intl.NumberFormat('es-MX', {
+        style: 'currency',
+        currency: currency || 'MXN',
+      }).format(amount);
+    } catch {
+      return `${amount.toFixed(2)} ${currency}`;
+    }
+  }
+
+  private isTruthy(value: boolean | number | string | null | undefined): boolean {
+    return value === true || value === 1 || value === '1' || value === 'true';
   }
 
   private getProductPayload(): ProductPayload | null {

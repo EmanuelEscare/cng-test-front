@@ -8,6 +8,15 @@ export interface ProductSupplierRelation {
   is_active?: boolean | number | string;
 }
 
+export interface ActivePromotion {
+  id: number;
+  promotion: string;
+  discount_percentage: number | string;
+  promotion_started_at?: string | null;
+  promotion_ends_at?: string | null;
+  is_active: boolean | number | string;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -15,6 +24,11 @@ export interface Product {
   description?: string | null;
   price: number | string;
   currency: string;
+  has_active_promotion?: boolean | number | string;
+  discount_percentage?: number | string | null;
+  discounted_price?: number | string | null;
+  final_price?: number | string | null;
+  active_promotion?: ActivePromotion | null;
   suppliers?: Supplier[];
   supplier?: Supplier | null;
   supplier_id?: number | string | null;

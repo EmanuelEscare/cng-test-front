@@ -150,6 +150,47 @@ textarea {
   width: 1%;
 }
 
+.price-stack {
+  align-items: flex-start;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 8rem;
+}
+
+.price-stack strong {
+  color: #047857;
+  font-size: 1rem;
+}
+
+.price-stack small {
+  color: #536078;
+  line-height: 1.25;
+  max-width: 14rem;
+}
+
+.promo-badge {
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  border-radius: 999px;
+  color: #166534;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0.25rem 0.45rem;
+  text-transform: uppercase;
+}
+
+.price-original {
+  color: #7a869a;
+  font-size: 0.85rem;
+  text-decoration: line-through;
+}
+
+.price-regular {
+  font-weight: 700;
+}
+
 .side-stack {
   display: grid;
   gap: 1rem;
