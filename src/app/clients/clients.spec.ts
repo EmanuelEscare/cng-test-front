@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 
 import { Clients } from './clients';
+import { Client } from '../services/client';
 
 describe('Clients', () => {
   let component: Clients;
@@ -8,7 +11,16 @@ describe('Clients', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Clients]
+      imports: [Clients],
+      providers: [
+        provideRouter([]),
+        {
+          provide: Client,
+          useValue: {
+            getClients: () => of({ data: [] }),
+          },
+        },
+      ],
     })
     .compileComponents();
 

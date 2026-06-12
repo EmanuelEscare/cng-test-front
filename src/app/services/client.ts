@@ -3,16 +3,25 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface ClientRecord {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+}
+
+interface ClientResponse {
+  data: ClientRecord[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class Client {
-  private apiUrl = environment.apiUrl;
+  private apiUrl = environment.apiUrl.replace(/\/$/, '');
   private http = inject(HttpClient);
 
-  constructor() {}
-
-  getClients(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}clients`);
+  getClients(): Observable<ClientResponse> {
+    return this.http.get<ClientResponse>(`${this.apiUrl}/clients`);
   }
 }

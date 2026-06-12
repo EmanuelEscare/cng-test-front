@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { Client } from '../services/client';
+import { Client, ClientRecord } from '../services/client';
 import { Router } from '@angular/router';
 
 @Component({
@@ -14,9 +14,7 @@ export class Clients {
   private clientService = inject(Client);
   private route = inject(Router);
 
-  public clients: any[] = [];
-
-  constructor() {}
+  public clients: ClientRecord[] = [];
 
   ngOnInit(): void {
     this.loadClients();
@@ -24,10 +22,10 @@ export class Clients {
 
   loadClients() {
     this.clientService.getClients().subscribe({
-      next: (res: any) => {
+      next: (res) => {
         this.clients = res.data;
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         console.error('Error fetching clients:', err);
         this.clients = [];
       },
