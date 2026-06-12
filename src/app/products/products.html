@@ -1,0 +1,256 @@
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Inventario</p>
+    <h1>Productos</h1>
+  </div>
+  <div class="metric">
+    <span>{{ totalProducts() }}</span>
+    <small>{{ listModeLabel() }}</small>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel__header">
+    <h2>Consulta</h2>
+  </div>
+
+  <div class="filters">
+    <label>
+      Proveedor
+      <select
+        [ngModel]="filters.supplierId"
+        (ngModelChange)="applySupplierFilter($event)"
+        name="supplierId"
+      >
+        <option [ngValue]="null">Todos</option>
+        @for (supplier of suppliers(); track supplier.id) {
+          <option [ngValue]="supplier.id">{{ supplier.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Búsqueda
+      <input
+        [ngModel]="filters.search"
+        (ngModelChange)="queueSearch($event)"
+        name="productSearch"
+        type="search"
+      />
+    </label>
+
+    <label class="checkbox-field">
+      <input
+        [ngModel]="filters.isActive"
+        (ngModelChange)="applyActiveFilter($event)"
+        name="isActive"
+        type="checkbox"
+      />
+      Solo activos
+    </label>
+  </div>
+
+  <div class="actions">
+    <p-button
+      (click)="clearFilters()"
+      [disabled]="isLoading()"
+      label="Limpiar filtros"
+      severity="secondary"
+      type="button"
+    />
+  </div>
+</section>
+
+@if (errorMessage()) {
+  <p class="message message--error">{{ errorMessage() }}</p>
+}
+
+@if (successMessage()) {
+  <p class="message message--success">{{ successMessage() }}</p>
+}
+
+<section class="content-grid">
+  <div class="panel panel--table">
+    <div class="panel__header">
+      <h2>Listado</h2>
+    </div>
+
+    <p-table
+      [loading]="isLoading()"
+      [tableStyle]="{ 'min-width': '54rem' }"
+      [value]="products()"
+      dataKey="id"
+    >
+      <ng-template #header>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>SKU</th>
+          <th>Precio</th>
+          <th>Moneda</th>
+          <th>Proveedores</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-product>
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>{{ product.name }}</td>
+          <td>{{ product.sku }}</td>
+          <td>
+            @if (hasActivePromotion(product)) {
+              <div class="price-stack price-stack--promo">
+                <span class="promo-badge">{{ getPromotionDiscountLabel(product) }}</span>
+                <strong>{{ formatFinalPrice(product) }}</strong>
+                <span class="price-original">{{ formatPrice(product) }}</span>
+                <small>{{ getPromotionName(product) }}</small>
+              </div>
+            } @else {
+              <span class="price-regular">{{ formatPrice(product) }}</span>
+            }
+          </td>
+          <td>{{ product.currency }}</td>
+          <td>{{ getSupplierNames(product) }}</td>
+          <td class="row-actions">
+            <p-button
+              (click)="showProduct(product)"
+              [disabled]="isLoading()"
+              label="Ver"
+              severity="secondary"
+              size="small"
+              type="button"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7">Sin productos</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div class="side-stack">
+    <section class="panel">
+      <div class="panel__header">
+        <h2>Producto</h2>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          ID
+          <input [(ngModel)]="productForm.id" disabled name="productId" type="number" />
+        </label>
+
+        <label>
+          Nombre
+          <input [(ngModel)]="productForm.name" name="productName" type="text" />
+        </label>
+
+        <label>
+          SKU
+          <input [(ngModel)]="productForm.sku" name="productSku" type="text" />
+        </label>
+
+        <label>
+          Precio
+          <input [(ngModel)]="productForm.price" min="0" name="productPrice" step="0.01" type="number" />
+        </label>
+
+        <label>
+          Moneda
+          <input [(ngModel)]="productForm.currency" maxlength="3" name="productCurrency" type="text" />
+        </label>
+
+        <label class="form-grid__full">
+          Descripción
+          <textarea [(ngModel)]="productForm.description" name="productDescription" rows="4"></textarea>
+        </label>
+      </div>
+
+      <div class="actions actions--wrap">
+        <p-button
+          (click)="resetForm()"
+          [disabled]="isSaving()"
+          label="Nuevo"
+          severity="secondary"
+          type="button"
+        />
+        <p-button
+          (click)="createProduct()"
+          [disabled]="isSaving()"
+          label="Crear"
+          type="button"
+        />
+        <p-button
+          (click)="patchProduct()"
+          [disabled]="isSaving() || !productForm.id"
+          label="Actualizar"
+          severity="secondary"
+          type="button"
+        />
+        <p-button
+          (click)="replaceProduct()"
+          [disabled]="isSaving() || !productForm.id"
+          label="Reemplazar"
+          severity="secondary"
+          type="button"
+        />
+        <p-button
+          (click)="deleteProduct()"
+          [disabled]="isSaving() || !productForm.id"
+          label="Eliminar"
+          severity="danger"
+          type="button"
+        />
+      </div>
+    </section>
+
+    @if (selectedProduct(); as product) {
+      <section class="panel">
+        <div class="panel__header">
+          <h2>Detalle</h2>
+        </div>
+
+        <dl class="detail-list">
+          <div>
+            <dt>Nombre</dt>
+            <dd>{{ product.name }}</dd>
+          </div>
+          <div>
+            <dt>SKU</dt>
+            <dd>{{ product.sku }}</dd>
+          </div>
+          <div>
+            <dt>Precio</dt>
+            <dd>
+              @if (hasActivePromotion(product)) {
+                <div class="price-stack price-stack--promo">
+                  <span class="promo-badge">{{ getPromotionDiscountLabel(product) }}</span>
+                  <strong>{{ formatFinalPrice(product) }}</strong>
+                  <span class="price-original">{{ formatPrice(product) }}</span>
+                  <small>{{ getPromotionName(product) }}</small>
+                </div>
+              } @else {
+                {{ formatPrice(product) }}
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>Creado</dt>
+            <dd>{{ formatDate(product.created_at) }}</dd>
+          </div>
+          <div>
+            <dt>Actualizado</dt>
+            <dd>{{ formatDate(product.updated_at) }}</dd>
+          </div>
+          <div>
+            <dt>Proveedores</dt>
+            <dd>{{ getSupplierNames(product) }}</dd>
+          </div>
+        </dl>
+      </section>
+    }
+  </div>
+</section>
